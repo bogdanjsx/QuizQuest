@@ -15,10 +15,16 @@
 }
 
 .App-intro {
-  font-size: large;
+  font-size: 40px;
+  margin: 20px 0px;
+  font-style: italic;
 }
 
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+body {
+  background-color: #72a8ff;
 }

@@ -1,0 +1,13 @@
+.PlayerCounter {
+  display: inline-block;
+  margin: 30px 130px;
+}
+
+.PlayerCounterNumber {
+  font-size: 180px;
+  font-weight: 900;
+}
+
+.PlayerCounterDescription {
+  font-size: 40px;
+}

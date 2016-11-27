@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './PlayerCounter.css';
 
 class PlayerCounter extends Component {
   render() {
