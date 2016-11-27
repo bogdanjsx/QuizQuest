@@ -1,0 +1,13 @@
+Server:
+  pagina initiala cu ip si numarul de jucatori conectati/ready
+  afisare toate domeniile
+  afisare intrebare
+  afisare raspunsuri jucatori + default
+  clasament raspunsuri (rezultate)
+
+Client:
+  la conectare, alegere nume si start/ready
+  alegere domeniu
+  alegere raspuns + submit
+  afisare raspunsuri - raspuns propriu (votare)
+  thank you for your answer
