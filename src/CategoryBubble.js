@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 
-class CategoryBubble extends Component {
+class Bubble extends Component {
   render() {
     return (
-      <div className="CategoryBubble">
-        <button>
-          {this.props.category}
-        </button>
+      <div className={this.props.className}>
+          {this.props.text}
       </div>
     );
   }
 }
 
-export default CategoryBubble;
+export default Bubble;

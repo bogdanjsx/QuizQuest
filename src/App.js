@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import logo from '../assets/mipmap-xhdpi/ic_launcher.png';
-import './App.css';
 
 import PlayerCounter from './PlayerCounter.js';
-import CategoryBubble from './CategoryBubble.js';
+import Bubble from './CategoryBubble.js';
+import Timer from './Timer.js'
+
+import './App.css';
+import './CategoryBubble.css';
 
 var categories = ['a', 'bbbb', 'cartofi prajiti'],
     question = 'How many cats does it take to screw in a lightbulb?',
@@ -12,7 +15,7 @@ var categories = ['a', 'bbbb', 'cartofi prajiti'],
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {page: 'start'};
+    this.state = {page: 'category'};
   }
 
   renderStartPage() {
@@ -35,10 +38,11 @@ class App extends Component {
     return (
       <div className="CategoryPage">
         <div className="App-header">
+          <Timer value={40} />
           <h2>player-name-here, please choose a category!</h2>
         </div>
         <div className="CategoryList">
-          {categories.map((cat) => <CategoryBubble category={cat} key={cat}/>)}
+          {categories.map((cat) => <Bubble className="categoryBubble" text={cat.toUpperCase()} key={cat}/>)}
         </div>
       </div>
     );
@@ -60,7 +64,7 @@ class App extends Component {
         Here are your answers:
         Choose the one you think is best!
         <div className="AnswerList">
-          {answers.map((cat) => <CategoryBubble category={cat} key={cat}/>)}
+          {answers.map((cat) => <Bubble category={cat} key={cat}/>)}
         </div>
       </div>
     );
@@ -72,7 +76,7 @@ class App extends Component {
         The results are in!
         Here's how you did:
         <div className="Results">
-          {answers.map((ans, ind) => <CategoryBubble category={ans} key={ans}/>)}
+          {answers.map((ans, ind) => <Bubble category={ans} key={ans}/>)}
         </div>
       </div>
     );
