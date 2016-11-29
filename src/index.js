@@ -4,7 +4,7 @@ import App from './App';
 import Player from './Player';
 import './index.css';
 
-var clientType = 'GameMasters';
+var clientType = 'GameMaster';
 
 ReactDOM.render(
   clientType === 'GameMaster' ? <App /> : <Player />,
