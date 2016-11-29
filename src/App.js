@@ -10,12 +10,13 @@ import './CategoryBubble.css';
 
 var categories = ['a', 'bbbb', 'cartofi prajiti'],
     question = 'How many cats does it take to screw in a lightbulb?',
+    states = ['start', 'category', 'question', 'answers', 'results'],
     answers = ['none', 'three black ones', 'all of them', 'cats???'];
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {page: 'category'};
+    this.state = {page: 'results'};
   }
 
   renderStartPage() {
@@ -51,9 +52,14 @@ class App extends Component {
   renderQuestionPage() {
     return (
       <div className="Question">
-        The question is:
-        {question}
-        Input your answer on your device!
+        <div className="App-header">
+          <Timer value={40} />
+            <h2>Here's the question, input your answer on your device!</h2>
+        </div>
+        <div className="App-intro">
+          {question}
+        </div>
+
       </div>
     );
   }
@@ -61,10 +67,12 @@ class App extends Component {
   renderAnswerChoosingPage() {
     return (
       <div className="Question">
-        Here are your answers:
-        Choose the one you think is best!
+        <div className="App-header">
+          <Timer value={40} />
+            <h2>Here are your answers, choose the one you think is best!</h2>
+        </div>
         <div className="AnswerList">
-          {answers.map((cat) => <Bubble category={cat} key={cat}/>)}
+          {answers.map((ans) => <Bubble className="categoryBubble" text={ans.toUpperCase()} key={ans}/>)}
         </div>
       </div>
     );
@@ -73,13 +81,19 @@ class App extends Component {
   renderResultsPage() {
     return (
       <div className="Question">
-        The results are in!
-        Here's how you did:
+        <div className="App-header">
+          <Timer value={40} />
+            <h2>The results are in! Here's how you did:</h2>
+        </div>
         <div className="Results">
-          {answers.map((ans, ind) => <Bubble category={ans} key={ans}/>)}
+          {answers.map((ans, ind) => <Bubble className="categoryBubble" text={ind.toString() + '. ' + ans} key={ans}/>)}
         </div>
       </div>
     );
+  }
+
+  componentWillMount() {
+    // setInterval(() => {this.setState({page: states[Math.floor(Math.random() * 5)]})}, 1000);
   }
 
   render() {
@@ -104,6 +118,7 @@ class App extends Component {
       default:
         currentPage = this.renderStartPage();
     }
+
     return (
       <div className="App">
         {currentPage}
