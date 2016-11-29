@@ -1,10 +1,10 @@
 var http = require('http'),
-    fs = require('fs'),
-    // NEVER use a Sync function except at start-up!
-    // index = fs.readFileSync(__dirname + '/../build/index.html');
-    index = fs.readFileSync(__dirname + '/../build/index.html');
-    // question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
-    // console.log(question_base["normal"][0]["category"])
+fs = require('fs'),
+// NEVER use a Sync function except at start-up!
+// index = fs.readFileSync(__dirname + '/../build/index.html');
+index = fs.readFileSync(__dirname + '/../build/index.html');
+// question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
+// console.log(question_base["normal"][0]["category"])
 // Send index.html to all requests
 // var express = require('express');
 // var app = http.createServer(function(req, res) {
@@ -68,7 +68,11 @@ io.on('connection', function(socket) {
     // Use socket to communicate with this particular client only, sending it it's own id
 	// aici putem memora id-urile clientilor .. pt ca serverul ii trimite clientului un id cand se conecteaza
 	// Emit welcome message on connection
-    socket.emit('welcome', { message: 'Welcome!', id: socket.id });
+    
+	socket.emit('message', { message: 'Ce faceti wai?'});
+    
+
+    setTimeout(function() {socket.emit('welcome', { message: 'Welcome!', id: socket.id })}, 30000);
 	
 	// asa pot sa afisez ce socket s-a deconectat ... scot si din lista de clienti curenti
 	socket.on('disconnect', function(){
@@ -165,7 +169,4 @@ io.on('connection', function(socket) {
 		
 });
 
-app.listen(3000, function() {
-	//console.log('listening on *:3000');
-	console.log("Intrati pe link-ul: " + "http://" /*+ self.location.host*/ + ":3000");
-});
+server.listen(3000);
