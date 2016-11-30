@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
+import './Player.css';
 //import SocketIO from "socket.io-client";
 var states = ['connect', 'category', 'answer', 'vote', 'blank'];
+var answers = ['ans1', 'ans2'];
 
 class Player extends Component {
   constructor(props) {
     super(props);
-    this.state = {page: ''};
-    
+    this.state = {page: 'vote',
+                  categories: states,
+                  answers: answers};
+
     this.socket = require('socket.io-client')(window.location.href);
 
     this.socket.on('welcome', function (data) {
@@ -18,7 +22,7 @@ class Player extends Component {
     }.bind(this));
 
     this.socket.on('alege domeniu', function(data) {
-      this.setState({domenii: data.message, page:'category'})
+      this.setState({categories: data.message, page:'category'})
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
@@ -31,54 +35,104 @@ class Player extends Component {
 
     this.socket.on('message', function(data) {
       console.log(data);
-      this.setState({page : 'message', message : data.message})
+      this.setState({page : 'connect', message : data.message})
       console.log(this.state);
     }.bind(this));
   }
 
   /*sending to server*/
   sendPlayerNameToServer(id, name) {
-    socket.emit('start', {id: id, name: name});
+    this.socket.emit('start', {id: id, name: name});
+    console.log(name);
   }
 
-  sendDomaniChosenByPlayer(domain) {
-    socket.emit('am ales domeniul', {domain: btn.innerHTML});
+  sendCategoryChosenByPlayer(category) {
+    this.socket.emit('am ales domeniul', {domain: category});
+    console.log(category);
   }
 
   sendAnswerGivenByPlayer(answer) {
-    socket.emit('raspuns dat', {raspuns: answer});
+    this.socket.emit('raspuns dat', {raspuns: answer});
+    console.log('ans ' + answer);
   }
 
-  sendAnswerVotedByPlayer(answerVoted) {
-    socket.emit('votare gata', {raspuns: answerVoted});
+  sendAnswerVotedByPlayer(answer) {
+    console.log('voted ' + answer);
+    this.socket.emit('votare gata', {raspuns: answer});
   }
-
-  
 
   renderConnect() {
-
+    return (
+      <div className="ConnectPage">
+        <p>Please input your name:</p>
+        <div className="ConnectCell">
+          <input id="nameInput"></input>
+        </div>
+        <div className="ConnectCell">
+          <button onClick={()=>{this.sendPlayerNameToServer(this.state.index,
+            document.getElementById('nameInput').value)}}>
+            Submit
+          </button>
+        </div>
+      </div>
+    );
   }
 
   renderCategory() {
-
+    return (
+      <div className="CategoryPage">
+        <p>Please choose a category:</p>
+        {this.state.categories.map((cat) =>
+          <div className="ConnectCell" key={cat}>
+            <button onClick={()=>{this.sendCategoryChosenByPlayer(cat)}}>
+              {cat.toUpperCase()}
+            </button>
+          </div>
+          )
+        }
+      </div>
+    );
   }
 
-  renderQuestion() {
-
+  renderAnswer() {
+    return (
+      <div className="AnswerPage">
+        <p>Please input an answer:</p>
+        <div className="ConnectCell">
+          <input id="answerInput"></input>
+        </div>
+        <div className="ConnectCell">
+          <button onClick={() => {
+            this.sendAnswerGivenByPlayer(document.getElementById('answerInput').value)
+            }}>
+            Submit
+          </button>
+        </div>
+      </div>
+    );
   }
 
   renderVote() {
+    return (
+      <div className="VotePage">
+        <p>Please vote for an answer:</p>
+        {this.state.answers.map((ans) =>
+          <div className="ConnectCell" key={ans}>
+            <button onClick={()=>{this.sendAnswerVotedByPlayer(ans)}}>
+              {ans.toUpperCase()}
+            </button>
+          </div>
+          )
+        }
+      </div>
+    );
 
   }
 
   renderBlank() {
-
-  }
-
-  renderDebug() {
     return (
-      <div>
-        {this.state.message}
+      <div className="AnswerPage">
+        Please wait and follow the game master's instructions.
       </div>
     );
   }
@@ -96,13 +150,10 @@ class Player extends Component {
         currentPage = this.renderCategory();
         break;
       case 'answer':
-        currentPage = this.renderQuestion();
+        currentPage = this.renderAnswer();
         break;
       case 'vote':
         currentPage = this.renderVote();
-        break;
-      case 'message':
-        currentPage = this.renderDebug();
         break;
       default:
         currentPage = this.renderBlank();
