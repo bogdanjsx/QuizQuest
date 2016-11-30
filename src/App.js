@@ -46,7 +46,7 @@ class App extends Component {
       console.log(this.state);
     }.bind(this));
   }
-  
+
   renderStartPage() {
     return (
       <div className="StartPage">
@@ -125,8 +125,7 @@ class App extends Component {
   }
 
   render() {
-    var currentPage = this.renderStartPage();
-
+    var currentPage;
     switch(this.state.page) {
       case 'start':
         currentPage = this.renderStartPage();

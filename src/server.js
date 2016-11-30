@@ -1,17 +1,7 @@
 var http = require('http'),
 fs = require('fs'),
-// NEVER use a Sync function except at start-up!
-// index = fs.readFileSync(__dirname + '/../build/index.html');
 index = fs.readFileSync(__dirname + '/../build/index.html');
-// question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
-// console.log(question_base["normal"][0]["category"])
-// Send index.html to all requests
-// var express = require('express');
-// var app = http.createServer(function(req, res) {
-//     res.writeHead(200, {'Content-Type': 'text/html'});
-//     res.sendFile(index);
-//     res.end();
-// });
+
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -33,16 +23,13 @@ var numar_voturi_gata = 0;
 var scoruri = {};
 var runde = 5;
 
+var question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
+
 
 // Send current time to all connected clients
 function sendClientsList() {
     io.emit('client list', { time: clients_ids });
 }
-
-// trimit lista cu toti clientii
-// faca ceva folosind un timer 
-// face asta pentru toti clientii ... executa functia aia pt toti
-// setInterval(sendClientsList, 10000);
 
 
 /**
@@ -65,14 +52,10 @@ function maxim() {
 }
 
 io.on('connection', function(socket) {
-    // Use socket to communicate with this particular client only, sending it it's own id
-	// aici putem memora id-urile clientilor .. pt ca serverul ii trimite clientului un id cand se conecteaza
-	// Emit welcome message on connection
-    
-	socket.emit('message', { message: 'Ce faceti wai?'});
-    
+	//socket.emit('message', { message: 'Ce faceti wai?'});
+    //socket.emit('welcome', {}); // just to trigger the players
 
-    setTimeout(function() {socket.emit('welcome', { message: 'Welcome!', id: socket.id })}, 30000);
+    setTimeout(function() {socket.emit('welcome', { message: 'Welcome!', id: socket.id })}, 100);
 	
 	// asa pot sa afisez ce socket s-a deconectat ... scot si din lista de clienti curenti
 	socket.on('disconnect', function(){
@@ -92,19 +75,22 @@ io.on('connection', function(socket) {
 	socket.on('start', function(data) {
 		players_names[data.id] = data.name;
 		scoruri[data.id] = 0;
-		console.log("clientul id/nume" + data.id + "..." + players_names[data.id] + " este gata sa inceapa jocul");
-		if (Object.keys(players_names).length == clients_ids.length) {
+		console.log("clientul " + data.name + " este gata");
+		console.log("numarul")
+
+		if (Object.keys(players_names).length == clients_ids.length && clients_ids.length >= 2) {
 			// aleg un jucator random care sa aleaga domeniul:
 			choose_domain();
 		}
 	});
 	
 	function choose_domain() {
-		var randomIndex = getRandomArbitrary(0, clients_ids.length);
+		var randomIndex = getRandomArbitrary(1, clients_ids.length);
 		console.log("Acum se alege domeniul de catre "  + players_names[clients_ids[randomIndex]]);
 
-		domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
-		
+		//domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
+		domains = question_base.normal;
+
 		console.log("Domeniile sunt: ... " + domains);
 		io.to(clients_ids[randomIndex]).emit('alege domeniu', {message: domains});
 	}
