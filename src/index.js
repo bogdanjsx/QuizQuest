@@ -4,9 +4,14 @@ import App from './App';
 import Player from './Player';
 import './index.css';
 
-var clientType = 'GameMasters';
+var socket = require('socket.io-client')(window.location.href);
 
-ReactDOM.render(
-  clientType === 'GameMaster' ? <App /> : <Player />,
-  document.getElementById('root')
-);
+socket.on('your role', function(data) {
+	ReactDOM.render(
+  		data.isMaster ? <App /> : <Player />,
+  		document.getElementById('root')
+	);
+});
+
+
+

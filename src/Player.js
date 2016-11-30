@@ -14,22 +14,24 @@ class Player extends Component {
     this.socket = require('socket.io-client')(window.location.href);
 
     this.socket.on('welcome', function (data) {
-      this.setState({page: 'connect'});
-    }.bind(this));
-
-    this.socket.on('uite-ti indexul', function(data) {
-      this.setState({index : data.index});
+      console.log("welcomed with id=" + data.id);
+      this.setState({page: 'connect', id: data.id});
+      console.log("confirming my id = "+ data.id);
+      this.socket.emit('i am client', {id: data.id});
     }.bind(this));
 
     this.socket.on('alege domeniu', function(data) {
+      console.log("received domains=" + data.message);
       this.setState({categories: data.message, page:'category'})
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
+      console.log("received the question");
       this.setState({page : 'answer'})
     }.bind(this));
 
     this.socket.on('voteaza', function(data) {
+      console.log("received voting page");
       this.setState({page : 'vote'})
     }.bind(this));
 
@@ -48,7 +50,7 @@ class Player extends Component {
   }
 
   sendCategoryChosenByPlayer(category) {
-    this.socket.emit('am ales domeniul', {domain: category});
+    this.socket.emit('am ales domeniul', {category: category});
     console.log(category);
     this.setState({page:'blank'});
   }
@@ -73,8 +75,7 @@ class Player extends Component {
           <input id="nameInput"></input>
         </div>
         <div className="ConnectCell">
-          <button onClick={()=>{this.sendPlayerNameToServer(this.state.index,
-            document.getElementById('nameInput').value)}}>
+          <button onClick={()=>{this.sendPlayerNameToServer(this.state.id, document.getElementById('nameInput').value)}}>
             Submit
           </button>
         </div>

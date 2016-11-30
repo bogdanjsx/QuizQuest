@@ -33,7 +33,7 @@ class App extends Component {
     }.bind(this));
 
     this.socket.on('timer update', function (data) {
-      this.setState({data.timer});
+      this.setState({timer: data.timer});
     }.bind(this));
 
 

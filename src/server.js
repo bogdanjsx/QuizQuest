@@ -7,6 +7,8 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var open = require('open');
+
 app.use(express.static(__dirname + '/../build'))
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/../build/index.html');
@@ -22,6 +24,7 @@ var raspunsuri = {};
 var numar_voturi_gata = 0;
 var scoruri = {};
 var runde = 5;
+var setMaster = true;
 
 var question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
 
@@ -52,10 +55,10 @@ function maxim() {
 }
 
 io.on('connection', function(socket) {
-	//socket.emit('message', { message: 'Ce faceti wai?'});
-    //socket.emit('welcome', {}); // just to trigger the players
+	socket.emit('your role', {isMaster: setMaster});
+	setMaster = false;
 
-    setTimeout(function() {socket.emit('welcome', { message: 'Welcome!', id: socket.id })}, 100);
+    socket.emit('welcome', {id: socket.id});
 	
 	// asa pot sa afisez ce socket s-a deconectat ... scot si din lista de clienti curenti
 	socket.on('disconnect', function(){
@@ -75,11 +78,10 @@ io.on('connection', function(socket) {
 	socket.on('start', function(data) {
 		players_names[data.id] = data.name;
 		scoruri[data.id] = 0;
-		console.log("clientul " + data.name + " este gata");
-		console.log("numarul")
+		console.log("Client id#" + data.id + " nume#" + data.name + " este gata.");
+		console.log("Avem ids#"+ clients_ids.length + " names#" + Object.keys(players_names).length);
 
 		if (Object.keys(players_names).length == clients_ids.length && clients_ids.length >= 2) {
-			// aleg un jucator random care sa aleaga domeniul:
 			choose_domain();
 		}
 	});
@@ -88,15 +90,15 @@ io.on('connection', function(socket) {
 		var randomIndex = getRandomArbitrary(1, clients_ids.length);
 		console.log("Acum se alege domeniul de catre "  + players_names[clients_ids[randomIndex]]);
 
-		//domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
-		domains = question_base.normal;
+		domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
+		//domains = question_base.normal.category;
 
 		console.log("Domeniile sunt: ... " + domains);
 		io.to(clients_ids[randomIndex]).emit('alege domeniu', {message: domains});
 	}
 	
 	socket.on('am ales domeniul', function(data) {
-		console.log("S-a ales domeniul: " + data.domeniu); 
+		console.log("S-a ales domeniul: " + data.category); 
 		io.sockets.emit('raspunde la intrebare', { intrebare: 'Intrebare 1'});
 	});
 	
@@ -156,3 +158,5 @@ io.on('connection', function(socket) {
 });
 
 server.listen(3000);
+
+open('http://localhost:3000/');
