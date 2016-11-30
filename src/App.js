@@ -17,8 +17,36 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {page: 'start'};
-  }
 
+    this.socket = require('socket.io-client')(window.location.href);
+
+    this.socket.on('welcome', function (data) {
+      this.setState({page: 'connect'});
+    }.bind(this));
+
+    this.socket.on('uite-ti indexul', function(data) {
+      this.setState({index : data.index});
+    }.bind(this));
+
+    this.socket.on('alege domeniu', function(data) {
+      this.setState({domenii: data.message, page:'category'})
+    }.bind(this));
+
+    this.socket.on('raspunde la intrebare', function(data) {
+      this.setState({page : 'answer'})
+    }.bind(this));
+
+    this.socket.on('voteaza', function(data) {
+      this.setState({page : 'vote'})
+    }.bind(this));
+
+    this.socket.on('message', function(data) {
+      console.log(data);
+      this.setState({page : 'message', message : data.message})
+      console.log(this.state);
+    }.bind(this));
+  }
+  
   renderStartPage() {
     return (
       <div className="StartPage">
