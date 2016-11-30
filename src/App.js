@@ -16,13 +16,21 @@ var categories = ['a', 'bbbb', 'cartofi prajiti'],
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {page: 'start'};
+    this.state = {page: 'start',
+                  connectedPlayers: 0,
+                  readyPlayers: 0};
 
     this.socket = require('socket.io-client')(window.location.href);
 
     this.socket.on('welcome', function (data) {
       this.setState({page: 'connect'});
     }.bind(this));
+
+    this.socket.on('player numbers update', function (data) {
+      this.setState({connectedPlayers: data.connectedPlayers,
+                     readyPlayers: data.readyPlayers});
+    }.bind(this));
+
 
     this.socket.on('uite-ti indexul', function(data) {
       this.setState({index : data.index});
@@ -57,8 +65,8 @@ class App extends Component {
         <div className="App-intro">
           To get started, please connect to ip-here.
         </div>
-        <PlayerCounter number={3} text="connected" />
-        <PlayerCounter number={1} text="ready" />
+        <PlayerCounter number={this.state.connectedPlayers} text="connected" />
+        <PlayerCounter number={this.state.readyPlayers} text="ready" />
       </div>
     );
   }
