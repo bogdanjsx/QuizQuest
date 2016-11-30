@@ -18,7 +18,8 @@ class App extends Component {
     super(props);
     this.state = {page: 'start',
                   connectedPlayers: 0,
-                  readyPlayers: 0};
+                  readyPlayers: 0,
+                  timer: 60};
 
     this.socket = require('socket.io-client')(window.location.href);
 
@@ -29,6 +30,10 @@ class App extends Component {
     this.socket.on('player numbers update', function (data) {
       this.setState({connectedPlayers: data.connectedPlayers,
                      readyPlayers: data.readyPlayers});
+    }.bind(this));
+
+    this.socket.on('timer update', function (data) {
+      this.setState({data.timer});
     }.bind(this));
 
 
@@ -75,7 +80,7 @@ class App extends Component {
     return (
       <div className="CategoryPage">
         <div className="App-header">
-          <Timer value={40} />
+          <Timer value={this.state.timer} />
           <h2>player-name-here, please choose a category!</h2>
         </div>
         <div className="CategoryList">
@@ -89,7 +94,7 @@ class App extends Component {
     return (
       <div className="Question">
         <div className="App-header">
-          <Timer value={40} />
+          <Timer value={this.state.timer} />
             <h2>Here's the question, input your answer on your device!</h2>
         </div>
         <div className="App-intro">
@@ -104,7 +109,7 @@ class App extends Component {
     return (
       <div className="Question">
         <div className="App-header">
-          <Timer value={40} />
+          <Timer value={this.state.timer} />
             <h2>Here are your answers, choose the one you think is best!</h2>
         </div>
         <div className="AnswerList">
@@ -118,7 +123,7 @@ class App extends Component {
     return (
       <div className="Question">
         <div className="App-header">
-          <Timer value={40} />
+          <Timer value={this.state.timer} />
             <h2>The results are in! Here's how you did:</h2>
         </div>
         <div className="Results">
