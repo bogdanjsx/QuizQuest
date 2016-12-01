@@ -114,7 +114,7 @@ io.on('connection', function(socket) {
 	
 	socket.on('am ales domeniul', function(data) {
 		console.log("S-a ales domeniul: " + data.category); 
-		io.sockets.emit('raspunde la intrebare', { intrebare: 'Intrebare 1'});
+		io.sockets.emit('raspunde la intrebare', { message: 'Intrebare 1'});
 	});
 	
 	socket.on('raspuns dat', function(data) {
@@ -131,7 +131,7 @@ io.on('connection', function(socket) {
 						lista.push(raspunsuri[key]);
 					}
 				}
-				io.to(clients_ids[i]).emit('voteaza', {lista_raspunsuri: lista});
+				io.to(clients_ids[i]).emit('voteaza', {answers: lista});
 			}
 		}
 	});
@@ -148,19 +148,22 @@ io.on('connection', function(socket) {
 			raspunsuri = {};
 			console.log("S-a terminat votarea.");
 			
-			var scor = "Scorul acum: ";
-			for (var i = 0; i < clients_ids.length; ++i){
-				scor = scor + +"[" + players_names[clients_ids[i]] + ":" + scoruri[clients_ids[i]] + "]";
+			var scores = [];
+			for (var idx  = 1; idx < clients_ids.length; idx++) {
+				var client_id = clients_ids[idx];
+				scores.push({player_name : players_names[client_id], player_score : scoruri[client_id]});
 			}
-			console.log(scor);
+			console.log(scores);
 			
+			io.to(clients_ids[0]).emit('score', {score : scores});
 
 			numar_voturi_gata = 0;
 			runde = runde - 1;
 			if (runde > 0) {
-				choose_domain();
-			} else {
-				io.sockets.emit('castigator', { castigator: maxim()});
+
+				setTimeout(function() {
+					choose_domain();
+				}, 8000);
 			}
 		}
 	});

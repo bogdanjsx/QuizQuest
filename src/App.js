@@ -47,11 +47,11 @@ class App extends Component {
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
-      this.setState({page : 'answer', question: data.message});
+      this.setState({page : 'question', question: data.message});
     }.bind(this));
 
     this.socket.on('voteaza', function(data) {
-      this.setState({page : 'vote', answers: data.answers})
+      this.setState({page : 'answers', answers: data.answers})
     }.bind(this));
 
     this.socket.on('score', function(data) {
@@ -136,7 +136,7 @@ class App extends Component {
           {this.state.results.map((result) =>
             <Bubble className="categoryBubble"
                     text={result.player_name + '\n' + result.player_score}
-                    key={result.player_score}/>)}
+                    key={result.player_name}/>)}
         </div>
       </div>
     );
