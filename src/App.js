@@ -19,12 +19,13 @@ class App extends Component {
     this.state = {page: 'start',
                   connectedPlayers: 0,
                   readyPlayers: 0,
-                  timer: 60};
+                  timer: 60,
+                  localip: 'localhost'};
 
     this.socket = require('socket.io-client')(window.location.href);
 
     this.socket.on('welcome', function (data) {
-      this.setState({page: 'connect'});
+      this.setState({page: 'connect', localip:data.ip});
       this.socket.emit('i am client', {id: data.id});
     }.bind(this));
 
@@ -73,7 +74,7 @@ class App extends Component {
           <h2>Let's play QuizQuest!</h2>
         </div>
         <div className="App-intro">
-          To get started, please connect to ip-here.
+          To get started, please connect to {this.state.localip}
         </div>
         <PlayerCounter number={this.state.connectedPlayers} text="connected" />
         <PlayerCounter number={this.state.readyPlayers} text="ready" />

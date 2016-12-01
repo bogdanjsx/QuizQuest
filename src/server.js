@@ -28,13 +28,30 @@ var setMaster = true;
 var master_id;
 
 var question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
-
+question_base = question_base.normal;
+//console.log(question_base);
+var ipaddr = require("ip");
+console.log(ipaddr.address());
+var ip = ipaddr.address();
 
 // Send current time to all connected clients
 function sendClientsList() {
     io.emit('client list', { time: clients_ids });
 }
 
+function select_5questions() {
+	var selected_questions = [];
+
+	for (var  i = 0; i < 5; ++i) {
+		var idx = getRandomArbitrary(0, question_base.length);
+		selected_questions.push(question_base[idx]);
+	}
+
+	return selected_questions;
+}
+
+var questions = select_5questions();
+var question;
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -65,7 +82,7 @@ io.on('connection', function(socket) {
 	setMaster = false;
 
 
-    socket.emit('welcome', {id: socket.id});
+    socket.emit('welcome', {id: socket.id, ip: ip});
 
 
 	// asa pot sa afisez ce socket s-a deconectat ... scot si din lista de clienti curenti
@@ -104,9 +121,11 @@ io.on('connection', function(socket) {
 		var randomIndex = getRandomArbitrary(1, clients_ids.length);
 		console.log("Acum se alege domeniul de catre "  + players_names[clients_ids[randomIndex]]);
 
-		domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
+		//domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
 		//domains = question_base.normal.category;
-
+		domains = questions.map(function(argument) {
+			return argument.category;
+		});
 		console.log("Domeniile sunt: ... " + domains);
 		io.to(clients_ids[randomIndex]).emit('alege domeniu', {message: domains});
 		io.to(clients_ids[0]).emit('alege domeniu', {message: domains});
@@ -114,7 +133,16 @@ io.on('connection', function(socket) {
 	
 	socket.on('am ales domeniul', function(data) {
 		console.log("S-a ales domeniul: " + data.category); 
-		io.sockets.emit('raspunde la intrebare', { message: 'Intrebare 1'});
+		for (var q of questions) {
+			if (q.category === data.category) {
+				question = q;
+				question.question = question.question.replace('<BLANK>', '______');
+				break;
+			}
+		}
+
+		io.sockets.emit('raspunde la intrebare', { message: question.question});
+		//question = "";
 	});
 	
 	socket.on('raspuns dat', function(data) {
@@ -131,6 +159,7 @@ io.on('connection', function(socket) {
 						lista.push(raspunsuri[key]);
 					}
 				}
+				lista.push(question.answer);
 				io.to(clients_ids[i]).emit('voteaza', {answers: lista});
 			}
 		}
@@ -153,6 +182,9 @@ io.on('connection', function(socket) {
 				var client_id = clients_ids[idx];
 				scores.push({player_name : players_names[client_id], player_score : scoruri[client_id]});
 			}
+			scores.sort(function(a, b) {
+				return b.player_score - a.player_score;
+			});
 			console.log(scores);
 			
 			io.to(clients_ids[0]).emit('score', {score : scores});
@@ -162,6 +194,7 @@ io.on('connection', function(socket) {
 			if (runde > 0) {
 
 				setTimeout(function() {
+					questions = select_5questions();
 					choose_domain();
 				}, 8000);
 			}
