@@ -25,6 +25,7 @@ var numar_voturi_gata = 0;
 var scoruri = {};
 var runde = 5;
 var setMaster = true;
+var master_id;
 
 var question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
 
@@ -56,10 +57,17 @@ function maxim() {
 
 io.on('connection', function(socket) {
 	socket.emit('your role', {isMaster: setMaster});
+	if (setMaster) {
+		socket.join("master");
+		console.log("master_id = " + socket.id);
+		//master_id = socket.id;
+	}
 	setMaster = false;
 
+
     socket.emit('welcome', {id: socket.id});
-	
+
+
 	// asa pot sa afisez ce socket s-a deconectat ... scot si din lista de clienti curenti
 	socket.on('disconnect', function(){
 		var index = clients_ids.indexOf(socket.id);
@@ -73,6 +81,9 @@ io.on('connection', function(socket) {
     socket.on('i am client', function(data) {
 		clients_ids.push(data.id);
 		console.log("clientul " + data.id + " a confirmat conectarea");
+
+		io.to(clients_ids[0]).emit('player numbers update',
+			{connectedPlayers: clients_ids.length - 1, readyPlayers: Object.keys(players_names).length});
 	});
 	
 	socket.on('start', function(data) {
@@ -81,7 +92,10 @@ io.on('connection', function(socket) {
 		console.log("Client id#" + data.id + " nume#" + data.name + " este gata.");
 		console.log("Avem ids#"+ clients_ids.length + " names#" + Object.keys(players_names).length);
 
-		if (Object.keys(players_names).length == clients_ids.length && clients_ids.length >= 2) {
+		io.to(clients_ids[0]).emit('player numbers update',
+			{connectedPlayers: clients_ids.length - 1, readyPlayers: Object.keys(players_names).length});
+
+		if (Object.keys(players_names).length == clients_ids.length - 1 && clients_ids.length >= 3) {
 			choose_domain();
 		}
 	});
@@ -95,6 +109,7 @@ io.on('connection', function(socket) {
 
 		console.log("Domeniile sunt: ... " + domains);
 		io.to(clients_ids[randomIndex]).emit('alege domeniu', {message: domains});
+		io.to(clients_ids[0]).emit('alege domeniu', {message: domains});
 	}
 	
 	socket.on('am ales domeniul', function(data) {
@@ -105,7 +120,7 @@ io.on('connection', function(socket) {
 	socket.on('raspuns dat', function(data) {
 		raspunsuri[socket.id] = data.raspuns;
 		console.log("Raspuns primit: " + data.raspuns);
-		if (Object.keys(raspunsuri).length == clients_ids.length) {
+		if (Object.keys(raspunsuri).length == clients_ids.length - 1) {
 			console.log("S-au primit toate raspunsurile ... acum trebuie sa se voteze");
 			// daca s-au dat toate raspunsurile ... sa vedem cate voturi primeste fiecare raspuns
 			// dau clientilor raspunsurile celorlalti si ei imi trimit inapoi unul dintre ele:
@@ -129,19 +144,18 @@ io.on('connection', function(socket) {
 				scoruri[key] = scoruri[key] + 1;
 			}
 		}
-		if (numar_voturi_gata == clients_ids.length) {
+		if (numar_voturi_gata == clients_ids.length - 1) {
 			raspunsuri = {};
 			console.log("S-a terminat votarea.");
+			
 			var scor = "Scorul acum: ";
 			for (var i = 0; i < clients_ids.length; ++i){
-				scor = scor + players_names[clients_ids[i]] + "->" + scoruri[clients_ids[i]] + " ";
+				scor = scor + +"[" + players_names[clients_ids[i]] + ":" + scoruri[clients_ids[i]] + "]";
 			}
 			console.log(scor);
 			
-			io.sockets.emit('scor pana acum', { scor: scor});
-			
+
 			numar_voturi_gata = 0;
-			
 			runde = runde - 1;
 			if (runde > 0) {
 				choose_domain();
@@ -150,13 +164,8 @@ io.on('connection', function(socket) {
 			}
 		}
 	});
-	
-	socket.on('client list primit', function(data) {
-		console.log("clientul " + data.id + " " + data.message);
-	});
 		
 });
 
 server.listen(3000);
-
 open('http://localhost:3000/');

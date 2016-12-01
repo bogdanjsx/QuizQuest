@@ -25,6 +25,7 @@ class App extends Component {
 
     this.socket.on('welcome', function (data) {
       this.setState({page: 'connect'});
+      this.socket.emit('i am client', {id: data.id});
     }.bind(this));
 
     this.socket.on('player numbers update', function (data) {
@@ -42,11 +43,11 @@ class App extends Component {
     }.bind(this));
 
     this.socket.on('alege domeniu', function(data) {
-      this.setState({domenii: data.message, page:'category'})
+      this.setState({categories: data.message, page:'category'})
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
-      this.setState({page : 'answer'})
+      this.setState({page : 'answer', question: data.message});
     }.bind(this));
 
     this.socket.on('voteaza', function(data) {
@@ -84,7 +85,7 @@ class App extends Component {
           <h2>player-name-here, please choose a category!</h2>
         </div>
         <div className="CategoryList">
-          {categories.map((cat) => <Bubble className="categoryBubble" text={cat.toUpperCase()} key={cat}/>)}
+          {this.state.categories.map((cat) => <Bubble className="categoryBubble" text={cat.toUpperCase()} key={cat}/>)}
         </div>
       </div>
     );
@@ -98,7 +99,7 @@ class App extends Component {
             <h2>Here's the question, input your answer on your device!</h2>
         </div>
         <div className="App-intro">
-          {question}
+          {this.state.question}
         </div>
 
       </div>
