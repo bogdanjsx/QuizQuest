@@ -51,7 +51,11 @@ class App extends Component {
     }.bind(this));
 
     this.socket.on('voteaza', function(data) {
-      this.setState({page : 'vote'})
+      this.setState({page : 'vote', answers: data.answers})
+    }.bind(this));
+
+    this.socket.on('score', function(data) {
+      this.setState({page: 'results', results: data.score})
     }.bind(this));
 
     this.socket.on('message', function(data) {
@@ -114,7 +118,8 @@ class App extends Component {
             <h2>Here are your answers, choose the one you think is best!</h2>
         </div>
         <div className="AnswerList">
-          {answers.map((ans) => <Bubble className="categoryBubble" text={ans.toUpperCase()} key={ans}/>)}
+          {this.state.answers.map((ans) =>
+            <Bubble className="categoryBubble" text={ans.toUpperCase()} key={ans}/>)}
         </div>
       </div>
     );
@@ -128,7 +133,10 @@ class App extends Component {
             <h2>The results are in! Here's how you did:</h2>
         </div>
         <div className="Results">
-          {answers.map((ans, ind) => <Bubble className="categoryBubble" text={ind.toString() + '. ' + ans} key={ans}/>)}
+          {this.state.results.map((result) =>
+            <Bubble className="categoryBubble"
+                    text={result.player_name + '\n' + result.player_score}
+                    key={result.player_score}/>)}
         </div>
       </div>
     );

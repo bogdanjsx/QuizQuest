@@ -32,7 +32,7 @@ class Player extends Component {
 
     this.socket.on('voteaza', function(data) {
       console.log("received voting page");
-      this.setState({page : 'vote'})
+      this.setState({page : 'vote', answers: data.answers})
     }.bind(this));
 
     this.socket.on('message', function(data) {
@@ -45,24 +45,20 @@ class Player extends Component {
   /*sending to server*/
   sendPlayerNameToServer(id, name) {
     this.socket.emit('start', {id: id, name: name});
-    console.log(name);
     this.setState({page:'blank'});
   }
 
   sendCategoryChosenByPlayer(category) {
     this.socket.emit('am ales domeniul', {category: category});
-    console.log(category);
     this.setState({page:'blank'});
   }
 
   sendAnswerGivenByPlayer(answer) {
     this.socket.emit('raspuns dat', {raspuns: answer});
-    console.log('ans ' + answer);
     this.setState({page:'blank'});
   }
 
   sendAnswerVotedByPlayer(answer) {
-    console.log('voted ' + answer);
     this.socket.emit('votare gata', {raspuns: answer});
     this.setState({page:'blank'});
   }
