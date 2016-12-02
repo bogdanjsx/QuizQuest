@@ -3,6 +3,7 @@ import logo from '../assets/mipmap-xhdpi/ic_launcher.png';
 
 import PlayerCounter from './PlayerCounter.js';
 import Bubble from './CategoryBubble.js';
+import ResultBubble from './ResultBubble.js';
 import Timer from './Timer.js'
 
 import './App.css';
@@ -11,16 +12,26 @@ import './CategoryBubble.css';
 var categories = ['a', 'bbbb', 'cartofi prajiti'],
     question = 'How many cats does it take to screw in a lightbulb?',
     states = ['start', 'category', 'question', 'answers', 'results'],
+    results = [{player_name: 'bofy1', player_score:6},
+                {player_name: 'bos3', player_score:3},
+                {player_name: 's1', player_score:2},
+               {player_name: 'bofafffffffffffffffffffffffffffffffffffy2', player_score:1}],
     answers = ['none', 'three black ones', 'all of them', 'cats???'];
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {page: 'start',
-                  connectedPlayers: 0,
-                  readyPlayers: 0,
-                  timer: 60,
-                  localip: 'localhost'};
+    this.state = {
+      page: 'results',
+      categories:categories,
+      answers:answers,
+      results: results,
+      currentPlayer: 'bofy',
+      connectedPlayers: 0,
+      readyPlayers: 0,
+      timer: 60,
+      localip: 'localhost'
+    };
 
     this.socket = require('socket.io-client')(window.location.href);
 
@@ -44,7 +55,7 @@ class App extends Component {
     }.bind(this));
 
     this.socket.on('alege domeniu', function(data) {
-      this.setState({categories: data.message, page:'category'})
+      this.setState({categories: data.message, currentPlayer: data.currentPlayer, page:'category'})
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
@@ -74,7 +85,7 @@ class App extends Component {
           <h2>Let's play QuizQuest!</h2>
         </div>
         <div className="App-intro">
-          To get started, please connect to {this.state.localip}
+          To get started, please connect to http://{this.state.localip}:3000
         </div>
         <PlayerCounter number={this.state.connectedPlayers} text="connected" />
         <PlayerCounter number={this.state.readyPlayers} text="ready" />
@@ -87,10 +98,15 @@ class App extends Component {
       <div className="CategoryPage">
         <div className="App-header">
           <Timer value={this.state.timer} />
-          <h2>player-name-here, please choose a category!</h2>
+          <h2>{this.state.currentPlayer}, please choose a category!</h2>
         </div>
         <div className="CategoryList">
-          {this.state.categories.map((cat) => <Bubble className="categoryBubble" text={cat.toUpperCase()} key={cat}/>)}
+          {this.state.categories.map((cat, ind) =>
+            <Bubble className="categoryBubble"
+                    // style={{marginLeft: (80*ind + 60).toString() + 'px',
+                    //         transform: 'rotate(' + (Math.random() * (40) - 20) + 'deg)'}}
+                    text={cat.toUpperCase()}
+                    key={cat}/>)}
         </div>
       </div>
     );
@@ -127,17 +143,20 @@ class App extends Component {
   }
 
   renderResultsPage() {
+    var leaderColors = ['#D9A441', '#A8A8A8', '#8C7853'];
     return (
       <div className="Question">
         <div className="App-header">
           <Timer value={this.state.timer} />
-            <h2>The results are in! Here's how you did:</h2>
+            <h2>The results are in! Here are the current standings:</h2>
         </div>
         <div className="Results">
-          {this.state.results.map((result) =>
-            <Bubble className="categoryBubble"
-                    text={result.player_name + '\n' + result.player_score}
-                    key={result.player_name}/>)}
+          {this.state.results.map((result, ind) =>
+            <ResultBubble className="resultBubble"
+              style={{backgroundColor: ind < 3 ? leaderColors[ind] : 'transparent'}}
+              name={result.player_name}
+              score={result.player_score}
+              key={result.player_name}/>)}
         </div>
       </div>
     );

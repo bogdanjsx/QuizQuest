@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 class Bubble extends Component {
   render() {
     return (
-      <div className={this.props.className}>
+      <div style={this.props.style} className={this.props.className}>
           {this.props.text}
       </div>
     );

@@ -1,13 +1,12 @@
 .categoryBubble {
   width: 360px;
-  height: 80px;
+  min-height: 80px;
   text-align: center;
   border: solid black 2px;
   border-radius: 30px;
-  margin: 12px auto;
+  margin: 30px auto;
   font-size: 40px;
   font-weight: 600;
-  padding-top: 35px;
 }
 
 .answerList {

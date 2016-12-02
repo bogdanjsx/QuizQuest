@@ -1,0 +1,26 @@
+.resultBubble {
+  min-width: 300px;
+  max-width: 1000px;
+  min-height: 80px;
+  text-align: center;
+  border: solid black 2px;
+  border-radius: 30px;
+  margin: 30px auto;
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.PlayerName {
+  text-align: center;
+  width: 80%;
+  min-height: 80px;
+  float: left;
+  border-right: solid black 7px;
+}
+
+.PlayerScore {
+  padding-top: 15px;
+
+}
+
+
