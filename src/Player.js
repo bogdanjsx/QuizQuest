@@ -68,7 +68,7 @@ class Player extends Component {
       <div className="ConnectPage">
         <p>Please input your name:</p>
         <div className="ConnectCell">
-          <input id="nameInput"></input>
+          <textarea id="nameInput"></textarea>
         </div>
         <div className="ConnectCell">
           <button onClick={()=>{this.sendPlayerNameToServer(this.state.id, document.getElementById('nameInput').value)}}>
@@ -100,7 +100,7 @@ class Player extends Component {
       <div className="AnswerPage">
         <p>Please input an answer:</p>
         <div className="ConnectCell">
-          <input id="answerInput"></input>
+          <textarea id="answerInput"></textarea>
         </div>
         <div className="ConnectCell">
           <button onClick={() => {

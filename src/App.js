@@ -85,7 +85,7 @@ class App extends Component {
           <h2>Let's play QuizQuest!</h2>
         </div>
         <div className="App-intro">
-          To get started, please connect to http://{this.state.localip}:3000
+          <h2>To get started, please connect to http://{this.state.localip}:3000</h2>
         </div>
         <PlayerCounter number={this.state.connectedPlayers} text="connected" />
         <PlayerCounter number={this.state.readyPlayers} text="ready" />
@@ -117,10 +117,10 @@ class App extends Component {
       <div className="Question">
         <div className="App-header">
           <Timer value={this.state.timer} />
-            <h2>Here's the question, input your answer on your device!</h2>
+          <h2>Here's the question, input your answer on your device!</h2>
         </div>
-        <div className="App-intro">
-          {this.state.question}
+        <div className="Question">
+          <h1>{this.state.question}</h1>
         </div>
 
       </div>
