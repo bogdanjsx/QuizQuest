@@ -3,7 +3,7 @@ body {
   padding: 0;
   font-family: sans-serif;
   background: url(background.jpg);
-    font: 20px "Open Sans", sans-serif;
+  font: 20px "Open Sans", sans-serif;
   color: white;
   text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
@@ -20,6 +20,8 @@ button {
 }
 
 textarea {
-    height: 40px;
-    width: 200px;
+    height: 130px;
+    width: 400px;
+    font: 25px "Open Sans", sans-serif;
+    color: black;
 }
