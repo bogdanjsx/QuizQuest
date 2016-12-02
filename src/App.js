@@ -137,7 +137,7 @@ class App extends Component {
       <div className="Question">
         <div className="App-header">
           <Timer value={this.state.timer} />
-            <h2>Here are your answers, choose the one you think is best!</h2>
+          <h2>Here are your answers, choose the one you think is best!</h2>
         </div>
         <div className="AnswerList">
           {this.state.answers.map((ans) =>
@@ -152,8 +152,7 @@ class App extends Component {
     return (
       <div className="Question">
         <div className="App-header">
-          <Timer value={this.state.timer} />
-            <h2>The results are in! Here are the current standings:</h2>
+          <h2>The results are in! Here are the current standings:</h2>
         </div>
         <div className="Results">
           {this.state.results.map((result, ind) =>
