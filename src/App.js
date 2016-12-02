@@ -139,6 +139,9 @@ class App extends Component {
           <Timer value={this.state.timer} />
           <h2>Here are your answers, choose the one you think is best!</h2>
         </div>
+        <div className="Question">
+          <h1>{this.state.question}</h1>
+        </div>
         <div className="AnswerList">
           {this.state.answers.map((ans) =>
             <Bubble className="categoryBubble" text={ans.toUpperCase()} key={ans}/>)}

@@ -16,7 +16,7 @@ app.get('/', function (req, res) {
 
 // Socket.io server listens to our app
 // var io = require('socket.io').listen(app);
-var DEFAULT_TIME = 30;
+var DEFAULT_TIME = 45;
 // lista cu clientii curenti
 var clients_ids = [];
 var players_names = {};
