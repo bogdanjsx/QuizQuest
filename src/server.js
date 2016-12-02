@@ -16,7 +16,7 @@ app.get('/', function (req, res) {
 
 // Socket.io server listens to our app
 // var io = require('socket.io').listen(app);
-
+var DEFAULT_TIME = 30;
 // lista cu clientii curenti
 var clients_ids = [];
 var players_names = {};
@@ -26,6 +26,7 @@ var scoruri = {};
 var runde = 5;
 var setMaster = true;
 var master_id;
+var timer = DEFAULT_TIME;
 
 var question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
 question_base = question_base.normal;
@@ -72,18 +73,24 @@ function maxim() {
 	return id_castigator;
 }
 
+
+var amount = 0;
+
+function async_timer_update() {
+	console.log(timer);
+	timer += amount;
+	if (timer < 0)
+		return;
+	io.sockets.emit('update clock', {time: timer});
+	//setTimeout(async_timer_update, 1000);
+}
+
+
 io.on('connection', function(socket) {
 	socket.emit('your role', {isMaster: setMaster});
-	if (setMaster) {
-		socket.join("master");
-		console.log("master_id = " + socket.id);
-		//master_id = socket.id;
-	}
 	setMaster = false;
 
-
     socket.emit('welcome', {id: socket.id, ip: ip});
-
 
 	// asa pot sa afisez ce socket s-a deconectat ... scot si din lista de clienti curenti
 	socket.on('disconnect', function(){
@@ -114,11 +121,14 @@ io.on('connection', function(socket) {
 
 		if (Object.keys(players_names).length == clients_ids.length - 1 && clients_ids.length >= 3) {
 			choose_domain();
+			amount = -1;
+			//async_timer_update();
 		}
 	});
 	
 	function choose_domain() {
 		var randomIndex = getRandomArbitrary(1, clients_ids.length);
+		timer = DEFAULT_TIME;
 		console.log("Acum se alege domeniul de catre "  + players_names[clients_ids[randomIndex]]);
 
 		//domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
@@ -128,7 +138,7 @@ io.on('connection', function(socket) {
 		});
 		console.log("Domeniile sunt: ... " + domains);
 		io.to(clients_ids[randomIndex]).emit('alege domeniu', {message: domains});
-		io.to(clients_ids[0]).emit('alege domeniu', {message: domains});
+		io.to(clients_ids[0]).emit('alege domeniu', {time: timer, message: domains, currentPlayer:players_names[clients_ids[randomIndex]]});
 	}
 	
 	socket.on('am ales domeniul', function(data) {
@@ -141,17 +151,24 @@ io.on('connection', function(socket) {
 			}
 		}
 
-		io.sockets.emit('raspunde la intrebare', { message: question.question});
+		timer = DEFAULT_TIME;
+		io.sockets.emit('raspunde la intrebare', {time: timer, message: question.question});
+		//for (client_id of clients_ids)
+		//	raspunsuri[client_id] = question.suggestions[getRandomArbitrary(0, question.suggestions.length)];
+		
 		//question = "";
 	});
 	
 	socket.on('raspuns dat', function(data) {
+		if (data.raspuns === null)
+			data.raspuns = question.suggestions[getRandomArbitrary(0, question.suggestions.length)];
 		raspunsuri[socket.id] = data.raspuns;
 		console.log("Raspuns primit: " + data.raspuns);
 		if (Object.keys(raspunsuri).length == clients_ids.length - 1) {
 			console.log("S-au primit toate raspunsurile ... acum trebuie sa se voteze");
 			// daca s-au dat toate raspunsurile ... sa vedem cate voturi primeste fiecare raspuns
 			// dau clientilor raspunsurile celorlalti si ei imi trimit inapoi unul dintre ele:
+			timer = DEFAULT_TIME;
 			for (var i = 0; i < clients_ids.length; i++) { // pentru fiecare jucator in parte
 				var lista = []; // ii creez o lista de raspunsuri
 				for (var key in raspunsuri) {
@@ -160,7 +177,7 @@ io.on('connection', function(socket) {
 					}
 				}
 				lista.push(question.answer);
-				io.to(clients_ids[i]).emit('voteaza', {answers: lista});
+				io.to(clients_ids[i]).emit('voteaza', {time: timer, answers: lista});
 			}
 		}
 	});
@@ -176,7 +193,8 @@ io.on('connection', function(socket) {
 		if (numar_voturi_gata == clients_ids.length - 1) {
 			raspunsuri = {};
 			console.log("S-a terminat votarea.");
-			
+			timer = DEFAULT_TIME;
+
 			var scores = [];
 			for (var idx  = 1; idx < clients_ids.length; idx++) {
 				var client_id = clients_ids[idx];
@@ -205,3 +223,6 @@ io.on('connection', function(socket) {
 
 server.listen(3000);
 open('http://localhost:3000/');
+//
+
+setInterval(async_timer_update, 1000);

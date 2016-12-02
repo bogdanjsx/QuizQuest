@@ -22,7 +22,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      page: 'results',
+      page: 'connect',
       categories:categories,
       answers:answers,
       results: results,
@@ -55,15 +55,16 @@ class App extends Component {
     }.bind(this));
 
     this.socket.on('alege domeniu', function(data) {
-      this.setState({categories: data.message, currentPlayer: data.currentPlayer, page:'category'})
+      //console.log(data);
+      this.setState({timer: data.time, categories: data.message, currentPlayer: data.currentPlayer, page:'category'})
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
-      this.setState({page : 'question', question: data.message});
+      this.setState({timer: data.time, page : 'question', question: data.message});
     }.bind(this));
 
     this.socket.on('voteaza', function(data) {
-      this.setState({page : 'answers', answers: data.answers})
+      this.setState({timer: data.time, page : 'answers', answers: data.answers})
     }.bind(this));
 
     this.socket.on('score', function(data) {
@@ -71,9 +72,13 @@ class App extends Component {
     }.bind(this));
 
     this.socket.on('message', function(data) {
-      console.log(data);
+      //console.log(data);
       this.setState({page : 'message', message : data.message})
-      console.log(this.state);
+      //console.log(this.state);
+    }.bind(this));
+
+    this.socket.on('update clock', function(data) {
+      this.setState({timer: data.time});
     }.bind(this));
   }
 
@@ -168,6 +173,7 @@ class App extends Component {
 
   render() {
     var currentPage;
+    
     switch(this.state.page) {
       case 'start':
         currentPage = this.renderStartPage();

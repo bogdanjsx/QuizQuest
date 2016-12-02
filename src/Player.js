@@ -2,43 +2,40 @@ import React, { Component } from 'react';
 import './Player.css';
 //import SocketIO from "socket.io-client";
 var states = ['connect', 'category', 'answer', 'vote', 'blank'];
-var answers = ['ans1', 'ans2'];
 
 class Player extends Component {
   constructor(props) {
     super(props);
-    this.state = {page: 'vote',
+    this.state = {page: 'connect',
                   categories: states,
-                  answers: answers};
+                  answers: [],
+                  time: 60};
 
     this.socket = require('socket.io-client')(window.location.href);
 
     this.socket.on('welcome', function (data) {
-      console.log("welcomed with id=" + data.id);
       this.setState({page: 'connect', id: data.id});
-      console.log("confirming my id = "+ data.id);
       this.socket.emit('i am client', {id: data.id});
     }.bind(this));
 
     this.socket.on('alege domeniu', function(data) {
-      console.log("received domains=" + data.message);
-      this.setState({categories: data.message, page:'category'})
+      this.setState({time: data.time, categories: data.message, page:'category'})
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
-      console.log("received the question");
-      this.setState({page : 'answer'})
+      this.setState({time: data.time, page : 'answer'})
     }.bind(this));
 
     this.socket.on('voteaza', function(data) {
-      console.log("received voting page");
-      this.setState({page : 'vote', answers: data.answers})
+      this.setState({time: data.time, page : 'vote', answers: data.answers})
     }.bind(this));
 
     this.socket.on('message', function(data) {
-      console.log(data);
       this.setState({page : 'connect', message : data.message})
-      console.log(this.state);
+    }.bind(this));
+
+    this.socket.on('update clock', function(data) {
+      this.setState({time : data.time})
     }.bind(this));
   }
 
@@ -61,6 +58,11 @@ class Player extends Component {
   sendAnswerVotedByPlayer(answer) {
     this.socket.emit('votare gata', {raspuns: answer});
     this.setState({page:'blank'});
+  }
+
+  getRandomElem(list) {
+    var idx = Math.floor(Math.random() * list.length);
+    return list[idx];
   }
 
   renderConnect() {
@@ -140,7 +142,7 @@ class Player extends Component {
 
 
   render() {
-    console.log(this.state.page);
+    //console.log(this.state);
     var currentPage;
 
     switch(this.state.page) {
@@ -149,12 +151,24 @@ class Player extends Component {
         break;
       case 'category':
         currentPage = this.renderCategory();
+        if (this.state.time === 0) {
+          this.sendCategoryChosenByPlayer(this.getRandomElem(this.state.categories));
+          this.setState({time:30});
+        }
         break;
       case 'answer':
         currentPage = this.renderAnswer();
+        if (this.state.time === 0) {
+          this.sendAnswerGivenByPlayer(null);
+          this.setState({time:30});
+        }
         break;
       case 'vote':
         currentPage = this.renderVote();
+        if (this.state.time === 0) {
+          this.sendAnswerVotedByPlayer(this.getRandomElem(this.state.answers));
+          this.setState({time:30});
+        }
         break;
       default:
         currentPage = this.renderBlank();
