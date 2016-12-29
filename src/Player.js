@@ -6,6 +6,7 @@ var states = ['connect', 'category', 'answer', 'vote', 'blank'];
 class Player extends Component {
   constructor(props) {
     super(props);
+    document.getElementById('music_audio').volume = 0;
     this.state = {page: 'connect',
                   categories: states,
                   answers: [],

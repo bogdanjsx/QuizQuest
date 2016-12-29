@@ -21,6 +21,7 @@ var categories = ['a', 'bbbb', 'cartofi prajiti'],
 class App extends Component {
   constructor(props) {
     super(props);
+    document.getElementById('music_audio').volume = 1;
     this.state = {
       page: 'connect',
       categories:categories,
@@ -151,7 +152,8 @@ class App extends Component {
   }
 
   renderResultsPage() {
-    var leaderColors = ['#D9A441', '#A8A8A8', '#8C7853'];
+    var leaderColors = ['rgba(217, 164, 65, 0.5)', 'rgba(168, 168, 168, 0.5)', 'rgba(140, 120, 83, 0.5)']
+    //var leaderColors = ['#D9A441', '#A8A8A8', '#8C7853'];
     return (
       <div className="Question">
         <div className="App-header">
@@ -160,7 +162,7 @@ class App extends Component {
         <div className="Results">
           {this.state.results.map((result, ind) =>
             <ResultBubble className="resultBubble"
-              style={{backgroundColor: ind < 3 ? leaderColors[ind] : 'transparent'}}
+              style={{backgroundColor: ind < 3 ? leaderColors[ind] : 'rgba(188, 140, 226, 0.5)'}}
               name={result.player_name}
               score={result.player_score}
               key={result.player_name}/>)}

@@ -1,5 +1,6 @@
 .categoryBubble {
-  width: 560px;
+  background-color: rgba(188, 140, 226, 0.2);
+  width: 35vw;
   min-height: 80px;
   text-align: center;
   border: solid black 5px;
@@ -13,11 +14,11 @@
 }
 
 .categoryBubble:nth-child(2n + 1) {
-  margin-left: 10px;
+  margin-left: 10vw;
 }
 
 .categoryBubble:nth-child(2n + 0) {
-  margin-left: 110px;
+  margin-left: 10vw;
 }
 
 .answerList {

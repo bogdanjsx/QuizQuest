@@ -16,7 +16,9 @@ app.get('/', function (req, res) {
 
 // Socket.io server listens to our app
 // var io = require('socket.io').listen(app);
-var DEFAULT_TIME = 45;
+var DEFAULT_TIME = 35;
+var DEFAULT_TIME_FOR_VOTE = 15;
+var DEFAULT_TIME_SEE_SCORE = 10;
 // lista cu clientii curenti
 var clients_ids = [];
 var players_names = {};
@@ -32,7 +34,7 @@ var question_base = JSON.parse(fs.readFileSync(__dirname + '/questions.json'));
 question_base = question_base.normal;
 //console.log(question_base);
 var ipaddr = require("ip");
-console.log(ipaddr.address());
+//console.log(ipaddr.address());
 var ip = ipaddr.address();
 
 // Send current time to all connected clients
@@ -96,7 +98,7 @@ io.on('connection', function(socket) {
 	socket.on('disconnect', function(){
 		var index = clients_ids.indexOf(socket.id);
 		clients_ids.splice(index, 1);
-		console.log('user disconnected: ' + players_names[socket.id] + "..." + socket.id);
+		//console.log('user disconnected: ' + players_names[socket.id] + "..." + socket.id);
 	});
 
 	// aici scrie ce a primit de la client ... adica clientul ii trimite inapoi id-ul sau cand se conecteaza
@@ -104,7 +106,7 @@ io.on('connection', function(socket) {
 	// care o sa inceapa sa se joace ... dupa ce toti au dat start joc ... si au introdus nume
     socket.on('i am client', function(data) {
 		clients_ids.push(data.id);
-		console.log("clientul " + data.id + " a confirmat conectarea");
+		//console.log("clientul " + data.id + " a confirmat conectarea");
 
 		io.to(clients_ids[0]).emit('player numbers update',
 			{connectedPlayers: clients_ids.length - 1, readyPlayers: Object.keys(players_names).length});
@@ -113,8 +115,8 @@ io.on('connection', function(socket) {
 	socket.on('start', function(data) {
 		players_names[data.id] = data.name;
 		scoruri[data.id] = 0;
-		console.log("Client id#" + data.id + " nume#" + data.name + " este gata.");
-		console.log("Avem ids#"+ clients_ids.length + " names#" + Object.keys(players_names).length);
+		//console.log("Client id#" + data.id + " nume#" + data.name + " este gata.");
+		//console.log("Avem ids#"+ clients_ids.length + " names#" + Object.keys(players_names).length);
 
 		io.to(clients_ids[0]).emit('player numbers update',
 			{connectedPlayers: clients_ids.length - 1, readyPlayers: Object.keys(players_names).length});
@@ -129,20 +131,20 @@ io.on('connection', function(socket) {
 	function choose_domain() {
 		var randomIndex = getRandomArbitrary(1, clients_ids.length);
 		timer = DEFAULT_TIME;
-		console.log("Acum se alege domeniul de catre "  + players_names[clients_ids[randomIndex]]);
+		//console.log("Acum se alege domeniul de catre "  + players_names[clients_ids[randomIndex]]);
 
 		//domains = ["alegeri-electorale-sua", "bucatarie franceza", "injuraturi neaose", "inca un domeniu sa fie"]
 		//domains = question_base.normal.category;
 		domains = questions.map(function(argument) {
 			return argument.category;
 		});
-		console.log("Domeniile sunt: ... " + domains);
+		//console.log("Domeniile sunt: ... " + domains);
 		io.to(clients_ids[randomIndex]).emit('alege domeniu', {message: domains});
 		io.to(clients_ids[0]).emit('alege domeniu', {time: timer, message: domains, currentPlayer:players_names[clients_ids[randomIndex]]});
 	}
 	
 	socket.on('am ales domeniul', function(data) {
-		console.log("S-a ales domeniul: " + data.category); 
+		//console.log("S-a ales domeniul: " + data.category); 
 		for (var q of questions) {
 			if (q.category === data.category) {
 				question = q;
@@ -163,17 +165,18 @@ io.on('connection', function(socket) {
 		if (data.raspuns === null)
 			data.raspuns = question.suggestions[getRandomArbitrary(0, question.suggestions.length)];
 		raspunsuri[socket.id] = data.raspuns;
-		console.log("Raspuns primit: " + data.raspuns);
+		//console.log("Raspuns primit: " + data.raspuns);
 		if (Object.keys(raspunsuri).length == clients_ids.length - 1) {
-			console.log("S-au primit toate raspunsurile ... acum trebuie sa se voteze");
+			//console.log("S-au primit toate raspunsurile ... acum trebuie sa se voteze");
 			// daca s-au dat toate raspunsurile ... sa vedem cate voturi primeste fiecare raspuns
 			// dau clientilor raspunsurile celorlalti si ei imi trimit inapoi unul dintre ele:
-			timer = DEFAULT_TIME;
+			timer = DEFAULT_TIME_FOR_VOTE;
 			for (var i = 0; i < clients_ids.length; i++) { // pentru fiecare jucator in parte
 				var lista = []; // ii creez o lista de raspunsuri
 				for (var key in raspunsuri) {
 					if (key != clients_ids[i]) {
-						lista.push(raspunsuri[key]);
+						if (lista.indexOf(raspunsuri[key]) === -1)
+							lista.push(raspunsuri[key]);
 					}
 				}
 				lista.push(question.answer);
@@ -184,7 +187,7 @@ io.on('connection', function(socket) {
 	
 	socket.on('votare gata', function(data) {
 		numar_voturi_gata = numar_voturi_gata + 1;
-		console.log(players_names[socket.id] + " a votat: " + data.raspuns);
+		//console.log(players_names[socket.id] + " a votat: " + data.raspuns);
 		for (var key in raspunsuri) {
 			if (raspunsuri[key] == data.raspuns) {
 				scoruri[key] = scoruri[key] + 1;
@@ -192,7 +195,7 @@ io.on('connection', function(socket) {
 		}
 		if (numar_voturi_gata == clients_ids.length - 1) {
 			raspunsuri = {};
-			console.log("S-a terminat votarea.");
+			//console.log("S-a terminat votarea.");
 			timer = DEFAULT_TIME;
 
 			var scores = [];
@@ -203,7 +206,7 @@ io.on('connection', function(socket) {
 			scores.sort(function(a, b) {
 				return b.player_score - a.player_score;
 			});
-			console.log(scores);
+			//console.log(scores);
 			
 			io.to(clients_ids[0]).emit('score', {score : scores});
 
@@ -214,7 +217,7 @@ io.on('connection', function(socket) {
 				setTimeout(function() {
 					questions = select_5questions();
 					choose_domain();
-				}, 8000);
+				}, DEFAULT_TIME_SEE_SCORE * 1000);
 			}
 		}
 	});
@@ -223,6 +226,4 @@ io.on('connection', function(socket) {
 
 server.listen(3000);
 open('http://localhost:3000/');
-//
-
 setInterval(async_timer_update, 1000);
