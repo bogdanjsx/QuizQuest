@@ -23,7 +23,7 @@ class Player extends Component {
     }.bind(this));
 
     this.socket.on('raspunde la intrebare', function(data) {
-      this.setState({time: data.time, page : 'answer'})
+      this.setState({time: data.time, page : 'answer', question: data.message})
     }.bind(this));
 
     this.socket.on('voteaza', function(data) {
@@ -38,7 +38,7 @@ class Player extends Component {
       this.setState({time : data.time})
     }.bind(this));
   }
-  
+
   isBlank(str) {
     return (!str || /^\s*$/.test(str) || str.length === 0);
   }
@@ -111,6 +111,7 @@ class Player extends Component {
   renderAnswer() {
     return (
       <div className="AnswerPage">
+        <p>{this.state.question}</p>
         <p>Please input an answer:</p>
         <div className="ConnectCell">
           <textarea id="answerInput"></textarea>
