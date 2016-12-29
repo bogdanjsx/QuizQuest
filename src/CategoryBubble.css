@@ -1,12 +1,23 @@
 .categoryBubble {
-  width: 360px;
+  width: 560px;
   min-height: 80px;
   text-align: center;
   border: solid black 5px;
   border-radius: 30px;
-  margin: 30px auto;
+  margin: 25px auto;
   font-size: 40px;
   font-weight: 600;
+  display: inline-block;
+  float: left;
+  overflow: hidden;
+}
+
+.categoryBubble:nth-child(2n + 1) {
+  margin-left: 10px;
+}
+
+.categoryBubble:nth-child(2n + 0) {
+  margin-left: 110px;
 }
 
 .answerList {
