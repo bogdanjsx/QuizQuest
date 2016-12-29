@@ -77,7 +77,7 @@ function maxim() {
 var amount = 0;
 
 function async_timer_update() {
-	console.log(timer);
+	//console.log(timer);
 	timer += amount;
 	if (timer < 0)
 		return;

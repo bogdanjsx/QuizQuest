@@ -38,11 +38,21 @@ class Player extends Component {
       this.setState({time : data.time})
     }.bind(this));
   }
+  
+  isBlank(str) {
+    return (!str || /^\s*$/.test(str) || str.length === 0);
+  }
 
   /*sending to server*/
   sendPlayerNameToServer(id, name) {
-    this.socket.emit('start', {id: id, name: name});
-    this.setState({page:'blank'});
+    console.log("Name " + name + " isBlank=" + this.isBlank(name));
+    if (this.isBlank(name)) {
+      document.getElementById('nameInput').value = "";
+      document.getElementById('nameInput').placeholder = "Invalid Name";
+    } else {
+      this.socket.emit('start', {id: id, name: name});
+      this.setState({page:'blank'});
+    }
   }
 
   sendCategoryChosenByPlayer(category) {
@@ -73,7 +83,8 @@ class Player extends Component {
           <textarea id="nameInput"></textarea>
         </div>
         <div className="ConnectCell">
-          <button onClick={()=>{this.sendPlayerNameToServer(this.state.id, document.getElementById('nameInput').value)}}>
+          <button onClick={()=>{
+            this.sendPlayerNameToServer(this.state.id, document.getElementById('nameInput').value)}}>
             Submit
           </button>
         </div>
